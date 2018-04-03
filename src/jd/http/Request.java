@@ -719,6 +719,11 @@ public abstract class Request {
         return lhttpConnection == null ? null : lhttpConnection.getHeaderField(key);
     }
 
+    public List<String> getResponseHeaders(final String key) {
+        final URLConnectionAdapter lhttpConnection = this.getHttpConnection();
+        return lhttpConnection == null ? null : lhttpConnection.getHeaderFields(key);
+    }
+
     public Map<String, List<String>> getResponseHeaders() {
         final URLConnectionAdapter lhttpConnection = this.getHttpConnection();
         return lhttpConnection == null ? null : lhttpConnection.getHeaderFields();
