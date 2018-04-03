@@ -1,5 +1,6 @@
 package jd.http;
 
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.appwork.net.protocol.http.HTTPConstants;
@@ -48,29 +49,38 @@ public abstract class AbstractAuthenticationFactory implements AuthenticationFac
     }
 
     protected String getRealm(Request request) {
-        final String wwwAuthenticate = this.getWWWAuthenticate(request);
-        return new Regex(wwwAuthenticate, "realm\\s*=\\s*\"(.*?)\"").getMatch(0);
+        final List<String> wwwAuthenticateMethods = this.getWWWAuthenticate(request);
+        if (wwwAuthenticateMethods != null) {
+            for (final String wwwAuthenticateMethod : wwwAuthenticateMethods) {
+                final String realm = new Regex(wwwAuthenticateMethod, "realm\\s*=\\s*\"(.*?)\"").getMatch(0);
+                if (realm != null) {
+                    return realm;
+                }
+            }
+        }
+        return null;
     }
 
-    protected String getWWWAuthenticate(Request request) {
-        return request.getResponseHeader(HTTPConstants.HEADER_RESPONSE_WWW_AUTHENTICATE);
+    protected List<String> getWWWAuthenticate(Request request) {
+        return request.getResponseHeaders(HTTPConstants.HEADER_RESPONSE_WWW_AUTHENTICATE);
     }
 
-    /** TODO: add support for multiple authentication in one header **/
     @Override
     public Authentication buildAuthentication(Browser browser, Request request) {
         if (request.getAuthentication() == null && this.requiresAuthentication(request)) {
-            final String wwwAuthenticate = this.getWWWAuthenticate(request);
-            final String realm = this.getRealm(request);
-            if (wwwAuthenticate != null) {
-                if (wwwAuthenticate.matches("(?i)^\\s*Basic.*")) {
-                    final Authentication ret = this.buildBasicAuthentication(browser, request, realm);
-                    this.addAuthentication(ret);
-                    return ret;
-                } else if (wwwAuthenticate.matches("(?i)^\\s*Digest.*")) {
-                    final Authentication ret = this.buildDigestAuthentication(browser, request, realm);
-                    this.addAuthentication(ret);
-                    return ret;
+            final List<String> wwwAuthenticateMethods = this.getWWWAuthenticate(request);
+            if (wwwAuthenticateMethods != null) {
+                final String realm = this.getRealm(request);
+                for (final String wwwAuthenticateMethod : wwwAuthenticateMethods) {
+                    if (wwwAuthenticateMethod.matches("(?i)^\\s*Basic.*")) {
+                        final Authentication ret = this.buildBasicAuthentication(browser, request, realm);
+                        this.addAuthentication(ret);
+                        return ret;
+                    } else if (wwwAuthenticateMethod.matches("(?i)^\\s*Digest.*")) {
+                        final Authentication ret = this.buildDigestAuthentication(browser, request, realm);
+                        this.addAuthentication(ret);
+                        return ret;
+                    }
                 }
             }
         }
