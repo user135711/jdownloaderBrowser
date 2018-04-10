@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -475,7 +474,7 @@ public class Browser {
     private String                   acceptLanguage   = "de, en-gb;q=0.9, en;q=0.8";
     /*
      * -1 means use default Timeouts
-     * 
+     *
      * 0 means infinite (DO NOT USE if not needed)
      */
     private int                      connectTimeout   = -1;
@@ -1762,10 +1761,10 @@ public class Browser {
         try {
             list = selector.getProxiesByURL(url);
         } catch (Throwable e) {
-            throw new NoGateWayException(selector, e);
+            throw new NoGateWayException(selector, "ProxySelector failed: " + url + "|Selector:" + selector, e);
         }
         if (list == null || list.size() == 0) {
-            throw new NoGateWayException(selector, "No Gateway or Proxy Found: " + url);
+            throw new NoGateWayException(selector, "No Gateway or Proxy Found: " + url + "|Selector:" + selector);
         }
         return list;
     }
