@@ -474,7 +474,7 @@ public class Browser {
     private String                   acceptLanguage   = "de, en-gb;q=0.9, en;q=0.8";
     /*
      * -1 means use default Timeouts
-     *
+     * 
      * 0 means infinite (DO NOT USE if not needed)
      */
     private int                      connectTimeout   = -1;
@@ -1625,7 +1625,9 @@ public class Browser {
                             request.setProxy(proxies.get(0));
                         }
                         this.applyAuthentication(request);
+                        this.onBeforeRequestConnect(request);
                         connection = request.connect(this).getHttpConnection();
+                        this.onAfterRequestConnect(request);
                     } finally {
                         this.updateCookies(request);
                         if (this.isDebug()) {
@@ -1694,6 +1696,12 @@ public class Browser {
                 return request.getHttpConnection();
             }
         }
+    }
+
+    protected void onAfterRequestConnect(Request request) throws IOException {
+    }
+
+    protected void onBeforeRequestConnect(Request request) throws IOException {
     }
 
     private boolean reportConnectException(final int proxyRetryCounter, final IOException e, final Request request) {
