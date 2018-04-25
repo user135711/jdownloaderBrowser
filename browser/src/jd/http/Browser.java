@@ -1666,6 +1666,9 @@ public class Browser {
                     }
                     connectRetryCounter++;
                     if (this.reportConnectException(connectRetryCounter, e, request) || e instanceof ProxyAuthException && this.updateProxy(connectRetryCounter, request)) {
+                        if (llogger != null) {
+                            llogger.info("Retry openRequestConnection(" + request.getUrl() + "):" + connectRetryCounter);
+                        }
                         // reset proxy
                         request.setProxy(null);
                         continue connectLoop;
@@ -2076,6 +2079,22 @@ public class Browser {
             selector = this.proxy;
         } else {
             selector = Browser.GLOBAL_PROXY;
+        }
+        final HTTPProxy proxy = request != null ? request.getProxy() : null;
+        if (proxy != null) {
+            switch (proxy.getType()) {
+            case SOCKS5:
+                if (proxyRetryCounter <= 2) {
+                    try {
+                        Thread.sleep(5000 * Math.max(1, proxyRetryCounter));
+                    } catch (final InterruptedException e) {
+                        return false;
+                    }
+                }
+                return true;
+            default:
+                break;
+            }
         }
         return selector != null && selector.updateProxy(request, proxyRetryCounter);
     }
