@@ -474,7 +474,7 @@ public class Browser {
     private String                   acceptLanguage   = "de, en-gb;q=0.9, en;q=0.8";
     /*
      * -1 means use default Timeouts
-     * 
+     *
      * 0 means infinite (DO NOT USE if not needed)
      */
     private int                      connectTimeout   = -1;
@@ -2074,12 +2074,6 @@ public class Browser {
      * @return true if a failed request should be done again.
      */
     protected boolean updateProxy(final int proxyRetryCounter, final Request request) {
-        final ProxySelectorInterface selector;
-        if (this.proxy != null) {
-            selector = this.proxy;
-        } else {
-            selector = Browser.GLOBAL_PROXY;
-        }
         final HTTPProxy proxy = request != null ? request.getProxy() : null;
         if (proxy != null) {
             switch (proxy.getType()) {
@@ -2095,6 +2089,12 @@ public class Browser {
             default:
                 break;
             }
+        }
+        final ProxySelectorInterface selector;
+        if (this.proxy != null) {
+            selector = this.proxy;
+        } else {
+            selector = Browser.GLOBAL_PROXY;
         }
         return selector != null && selector.updateProxy(request, proxyRetryCounter);
     }
