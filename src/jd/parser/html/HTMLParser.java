@@ -419,12 +419,24 @@ public class HTMLParser {
         }
 
         public String toURL() {
-            final String ret = this.toString();
-            return Encoding.urlEncode_light(ret);
+            return new StringBuilder().append(this.toCharSequenceURL()).toString();
         }
 
         public CharSequence toCharSequenceURL() {
-            return Encoding.urlEncodeCharSequence_light(this);
+            int slash = 0;
+            for (int index = 0; index < this.length(); index++) {
+                if (this.charAt(index) == '/' && ++slash == 3) {
+                    if (this.length() - index > 1) {
+                        final CharSequence host = this.subSequence(0, index);
+                        final CharSequence rest = this.subSequence(index);
+                        final ConcatCharSequence ret = new ConcatCharSequence(host, Encoding.urlEncodeCharSequence_light(rest));
+                        return ret;
+                    } else {
+                        return this;
+                    }
+                }
+            }
+            return this;
         }
 
         public HtmlParserCharSequence trim() {
@@ -1196,7 +1208,7 @@ public class HTMLParser {
 
     /*
      * return tmplinks.toArray(new String[tmplinks.size()]); }
-     * 
+     *
      * /* parses data for available links and returns a string array which does not contain any duplicates
      */
     public static Collection<String> getHttpLinksIntern(String content, final String baseURLString, HtmlParserResultSet results) {
