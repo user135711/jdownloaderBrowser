@@ -710,7 +710,7 @@ public class Browser {
             }
         }
         if (requestContentType == null) {
-            requestContentType = "application/x-www-form-urlencoded";
+            requestContentType = "application/x-www-form-urlencoded; charset=UTF-8";
         }
         request.setContentType(requestContentType);
         return request;
