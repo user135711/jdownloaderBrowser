@@ -912,10 +912,22 @@ public class Browser {
         return this.connectTimeout < 0 ? Browser.TIMEOUT_CONNECT : this.connectTimeout;
     }
 
-    public String getCookie(final String url, final String key) {
+    public String getCookie(final String url, final String key, String pattern) {
         final Cookies cookies = this.getCookies(url);
-        final Cookie cookie = cookies.get(key);
+        final Cookie cookie = cookies.get(key, pattern);
         return cookie != null ? cookie.getValue() : null;
+    }
+
+    public String getHostCookie(final String key, final String pattern) {
+        return this.getCookie(this.getHost(), key, pattern);
+    }
+
+    public String getHostCookie(final String key) {
+        return this.getHostCookie(key, null);
+    }
+
+    public String getCookie(final String url, final String key) {
+        return this.getCookie(url, key, null);
     }
 
     public HashMap<String, Cookies> getCookies() {
